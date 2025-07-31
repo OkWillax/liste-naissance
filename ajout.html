@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<<<<<<< HEAD
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ajouter un cadeau</title>
@@ -44,10 +45,72 @@
     }
     button:hover {
       background: #c670ff;
+=======
+  <meta charset="UTF-8" />
+  <title>Ajouter un Cadeau</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fefce8;
+      color: #333;
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    form {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-bottom: 40px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 16px;
+      background-color: #facc15;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 40px;
+    }
+
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #fef9c3;
+>>>>>>> 42f7acf63208a144ecc377e564ae886b38f8f196
     }
   </style>
 </head>
 <body>
+<<<<<<< HEAD
   <h1>Ajouter un cadeau</h1>
   <form id="gift-form">
     <label for="nom_article">Nom du cadeau :</label>
@@ -61,19 +124,60 @@
 
     <label for="photo">Photo :</label>
     <input type="file" id="photo" name="photo" accept="image/*" required />
+=======
+
+  <h1>Ajouter un Cadeau</h1>
+
+  <form id="addGiftForm">
+    <label for="nom_article">Nom de l'article *</label>
+    <input type="text" id="nom_article" required>
+
+    <label for="description">Description</label>
+    <textarea id="description"></textarea>
+
+    <label for="quantite">Quantité</label>
+    <input type="number" id="quantite" value="1" min="1">
+
+    <label for="prix">Prix estimé (€)</label>
+    <input type="number" id="prix" step="0.01" min="0">
+
+    <label for="photo_url">URL de la photo</label>
+    <input type="text" id="photo_url">
+>>>>>>> 42f7acf63208a144ecc377e564ae886b38f8f196
 
     <button type="submit">Ajouter</button>
   </form>
 
+<<<<<<< HEAD
   <h2>Participations</h2>
   <div id="participations">Chargement des participations...</div>
 
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js';
+=======
+  <h2>📋 Articles réservés ou partiellement financés</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Article</th>
+        <th>Réservé par</th>
+        <th>Participants</th>
+        <th>Total Participé (€)</th>
+      </tr>
+    </thead>
+    <tbody id="summaryBody">
+      <tr><td colspan="4">Chargement...</td></tr>
+    </tbody>
+  </table>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+>>>>>>> 42f7acf63208a144ecc377e564ae886b38f8f196
 
     const supabase = createClient(
       'https://tfkenechaojxmxhzpqvq.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRma2VuZWNoYW9qeG14aHpwcXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5Njg1MTQsImV4cCI6MjA2OTU0NDUxNH0.1voFTEB2YHIt-oDdCWzkRntRI7egiUoYQ2UB9SrogZ0'
+<<<<<<< HEAD
     );
 
     document.getElementById('gift-form').addEventListener('submit', async (e) => {
@@ -186,6 +290,68 @@
     }
 
     loadParticipations();
+=======
+    )
+
+    const form = document.getElementById('addGiftForm')
+    const summaryBody = document.getElementById('summaryBody')
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+
+      const cadeau = {
+        nom_article: form.nom_article.value,
+        description: form.description.value || null,
+        quantite: parseInt(form.quantite.value) || 1,
+        prix: form.prix.value ? parseFloat(form.prix.value) : null,
+        photo_url: form.photo_url.value || null,
+        est_reserve: false,
+        reserve_par: null,
+        a_des_participants: false,
+        participations: []
+      }
+
+      const { error } = await supabase.from('cadeaux').insert([cadeau])
+
+      if (error) {
+        alert("Erreur : " + error.message)
+      } else {
+        alert("Ajouté ✅")
+        form.reset()
+        loadSummary()
+      }
+    })
+
+async function loadSummary() {
+  const { data, error } = await supabase
+    .from('cadeaux')
+    .select('nom_article, reserve_par, quantite, participations')
+
+  if (error) {
+    summaryBody.innerHTML = '<tr><td colspan="4">Erreur de chargement</td></tr>'
+    return
+  }
+
+  summaryBody.innerHTML = ''
+
+  data.forEach(item => {
+    const participants = item.participations || []
+    const noms = participants.map(p => p.nom).join(', ') || '-'
+    const total = participants.reduce((sum, p) => sum + (p.montant || 0), 0)
+
+    const row = document.createElement('tr')
+    row.innerHTML = `
+      <td>${item.nom_article}</td>
+      <td>${item.reserve_par || '-'}</td>
+      <td>${noms}</td>
+      <td>${total ? total.toFixed(2) + ' €' : '-'}</td>
+    `
+    summaryBody.appendChild(row)
+  })
+}
+
+    loadSummary()
+>>>>>>> 42f7acf63208a144ecc377e564ae886b38f8f196
   </script>
 </body>
 </html>
