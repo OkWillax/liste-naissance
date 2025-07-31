@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <title>Liste de Naissance</title>
-<<<<<<< HEAD
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
@@ -21,21 +20,10 @@
 
     * {
       box-sizing: border-box;
-=======
-  <style>
-    :root {
-      --bg: #fefce8;
-      --primary: #facc15;
-      --primary-dark: #eab308;
-      --text: #333;
-      --border: #e2e8f0;
-      --shadow: rgba(0, 0, 0, 0.05);
->>>>>>> 42f7acf63208a144ecc377e564ae886b38f8f196
     }
 
     body {
       margin: 0;
-<<<<<<< HEAD
       font-family: 'Poppins', sans-serif;
       background-color: var(--bg);
       color: var(--text);
@@ -159,136 +147,18 @@
   </style>
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js';
-=======
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    h1 {
-      margin: 30px 0 10px;
-      font-size: 2.2rem;
-      color: var(--text);
-    }
-
-    #gift-list {
-      width: 90%;
-      max-width: 800px;
-      margin-bottom: 40px;
-    }
-
-    .item {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 6px var(--shadow);
-      transition: transform 0.2s ease;
-    }
-
-    .item:hover {
-      transform: translateY(-2px);
-    }
-
-    .item h3 {
-      margin-top: 0;
-      font-size: 1.4rem;
-    }
-
-    .item p {
-      margin: 6px 0;
-      line-height: 1.5;
-    }
-
-    .item img {
-      max-width: 100%;
-      border-radius: 8px;
-      margin-top: 12px;
-    }
-
-    button {
-      padding: 8px 14px;
-      font-size: 1rem;
-      font-weight: 500;
-      background-color: var(--primary);
-      color: black;
-      border: none;
-      border-radius: 6px;
-      margin-top: 10px;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-
-    button:hover {
-      background-color: var(--primary-dark);
-    }
-
-    dialog {
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-  </style>
-</head>
-<body>
-
-  <h1>🎁 Liste de Naissance</h1>
-
-  <div style="max-width: 700px; text-align: center; margin-bottom: 30px; font-size: 1.1rem; line-height: 1.6;">
-    <p><strong>✨ Bienvenue sur notre petite plateforme maison ✨</strong></p>
-    <p>À l’approche de la naissance de notre petite fille, nous avons mis en place cette page pour partager avec vous quelques idées de cadeaux… sans passer par les grandes plateformes aux commissions salées (et aussi, avouons-le, parce que ça amuse beaucoup William de tout coder lui-même 😄).</p>
-    <p>La plupart des essentiels sont déjà prêts de notre côté, mais chaque attention — grande ou petite — nous touche profondément.<br>
-    Si le cœur vous en dit, vous pouvez choisir de participer à un cadeau ou de l’offrir en entier. L’essentiel, c’est de penser à nous dans cette belle aventure.</p>
-    <p>Merci du fond du cœur pour votre présence, votre générosité, et votre affection. 💛<br>
-    Les différents moyens de contribuer sont affichés en bas de cette page.</p>
-    <p style="margin-top: 1em;"><em>Cécile et William</em></p>
-  </div>
-
-  <div id="gift-list">Chargement des articles...</div>
-
-  <dialog id="participationModal">
-    <form method="dialog" id="participationForm">
-      <h3>Contribuer à ce cadeau</h3>
-      <label>Votre prénom :</label><br />
-      <input type="text" id="participantName" required><br /><br />
-      <label>Montant (€) :</label><br />
-      <input type="number" id="participantAmount" required><br /><br />
-      <input type="hidden" id="currentGiftId">
-      <button type="submit">Envoyer ma participation</button>
-      <button type="button" onclick="document.getElementById('participationModal').close()">Annuler</button>
-    </form>
-  </dialog>
-
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
->>>>>>> 42f7acf63208a144ecc377e564ae886b38f8f196
 
     const supabase = createClient(
       'https://tfkenechaojxmxhzpqvq.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRma2VuZWNoYW9qeG14aHpwcXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5Njg1MTQsImV4cCI6MjA2OTU0NDUxNH0.1voFTEB2YHIt-oDdCWzkRntRI7egiUoYQ2UB9SrogZ0'
-<<<<<<< HEAD
     );
 
     const container = document.getElementById('gift-list');
-=======
-    )
-
-    const container = document.getElementById('gift-list')
-    const modal = document.getElementById('participationModal')
-    const form = document.getElementById('participationForm')
->>>>>>> 42f7acf63208a144ecc377e564ae886b38f8f196
 
     async function loadGifts() {
       const { data, error } = await supabase
         .from('cadeaux')
         .select('*')
-<<<<<<< HEAD
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -499,97 +369,3 @@ form.addEventListener('submit', async (e) => {
 </script>
 </body>
 </html>
-=======
-        .order('created_at', { ascending: true })
-
-      if (error) {
-        container.innerHTML = `<p>Erreur de chargement: ${error.message}</p>`
-        return
-      }
-
-      container.innerHTML = ''
-      data.forEach(item => {
-        const div = document.createElement('div')
-        div.className = 'item'
-
-        let status = ''
-        const participations = item.participations || []
-        const total = participations.reduce((sum, p) => sum + (p.montant || 0), 0)
-
-        const isFullyFunded = item.prix && total >= item.prix
-
-        if (item.est_reserve) {
-          status = `🎁 <strong>Réservé par :</strong> ${item.reserve_par}`
-        } else if (isFullyFunded) {
-          status = `💝 <strong>Ce cadeau est entièrement offert</strong>`
-        } else if (item.a_des_participants || participations.length > 0) {
-          status = `💛 Des personnes contribuent à ce cadeau`
-        }
-
-        div.innerHTML = `
-          <h3>${item.nom_article}</h3>
-          <p>${item.description ?? ''}</p>
-          <p>Quantité : ${item.quantite ?? 1}</p>
-          ${item.prix ? `<p><strong>Prix estimé :</strong> ${item.prix.toFixed(2)} €</p>` : ''}
-          ${item.photo_url ? `<img src="${item.photo_url}" alt="Photo de l'article">` : ''}
-          <p>${status}</p>
-          ${!item.est_reserve && !isFullyFunded ? `
-            <button onclick="reserveItem('${item.id}')">Offrir ce cadeau en entier</button>
-            <button onclick="openParticipationModal('${item.id}')">Participer au cadeau</button>
-          ` : ''}
-        `
-
-        container.appendChild(div)
-      })
-    }
-
-    window.reserveItem = async function (id) {
-      const name = prompt("Entrez votre nom pour réserver cet article :")
-      if (!name) return
-
-      const { error } = await supabase
-        .from('cadeaux')
-        .update({ est_reserve: true, reserve_par: name })
-        .eq('id', id)
-
-      if (error) {
-        alert("Erreur : " + error.message)
-      } else {
-        alert("Réservé ✅")
-        loadGifts()
-      }
-    }
-
-    window.openParticipationModal = function (giftId) {
-      document.getElementById('currentGiftId').value = giftId
-      modal.showModal()
-    }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault()
-      const id = document.getElementById('currentGiftId').value
-      const nom = document.getElementById('participantName').value
-      const montant = parseFloat(document.getElementById('participantAmount').value)
-
-      const { data, error } = await supabase
-        .rpc('ajouter_participation', {
-          cadeau_id: id,
-          participant_nom: nom,
-          participant_montant: montant
-        })
-
-      if (error) {
-        alert("Erreur : " + error.message)
-      } else {
-        modal.close()
-        alert("Merci pour votre participation 💛")
-        loadGifts()
-      }
-    })
-
-    loadGifts()
-  </script>
-  <!-- redeploy -->
-</body>
-</html>
->>>>>>> 42f7acf63208a144ecc377e564ae886b38f8f196
