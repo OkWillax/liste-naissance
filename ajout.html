@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ajouter un cadeau</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #fffdf5;
+      color: #111;
+      padding: 20px;
+    }
+    form {
+      max-width: 600px;
+      margin: auto;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      padding: 30px;
+    }
+    label {
+      display: block;
+      margin: 16px 0 8px;
+      font-weight: 600;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
+    }
+    button {
+      background: #3d0066;
+      color: white;
+      border: none;
+      margin-top: 20px;
+      cursor: pointer;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    button:hover {
+      background: #c670ff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ajouter un cadeau</h1>
+  <form id="gift-form">
+    <label for="nom_article">Nom du cadeau :</label>
+    <input type="text" id="nom_article" name="nom_article" required />
+
+    <label for="description">Description :</label>
+    <textarea id="description" name="description"></textarea>
+
+    <label for="prix">Prix :</label>
+    <input type="number" id="prix" name="prix" step="0.01" />
+
+    <label for="photo">Photo :</label>
+    <input type="file" id="photo" name="photo" accept="image/*" required />
+
+    <button type="submit">Ajouter</button>
+  </form>
+
+  <h2>Participations</h2>
+  <div id="participations">Chargement des participations...</div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js';
+
+    const supabase = createClient(
+      'https://tfkenechaojxmxhzpqvq.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRma2VuZWNoYW9qeG14aHpwcXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5Njg1MTQsImV4cCI6MjA2OTU0NDUxNH0.1voFTEB2YHIt-oDdCWzkRntRI7egiUoYQ2UB9SrogZ0'
+    );
+
+    document.getElementById('gift-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nom_article = document.getElementById('nom_article').value;
+      const description = document.getElementById('description').value;
+      const prix = parseFloat(document.getElementById('prix').value || '0');
+      const fileInput = document.getElementById('photo');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Merci de sélectionner une photo.");
+        return;
+      }
+
+      const sanitizeFileName = (name) =>
+        name
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[’'"]/g, "")
+          .replace(/[^a-zA-Z0-9._-]/g, "-");
+
+      const fileName = `${Date.now()}-${sanitizeFileName(file.name)}`;
+
+      // Upload file to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage.from('photos').upload(fileName, file);
+
+      if (uploadError) {
+        alert('Erreur lors de l\'upload de la photo');
+        console.error(uploadError);
+        return;
+      }
+
+      const { data: publicUrlData } = supabase.storage.from('photos').getPublicUrl(fileName);
+      const photo_url = publicUrlData.publicUrl;
+
+      const { error } = await supabase.from('cadeaux').insert([
+        { nom_article, description, prix, photo_url }
+      ]);
+
+      if (error) {
+        alert('Erreur lors de l\'ajout du cadeau');
+        console.error(error);
+      } else {
+        alert('Cadeau ajouté avec succès !');
+        document.getElementById('gift-form').reset();
+        loadParticipations();
+      }
+    });
+
+    async function loadParticipations() {
+      const { data: cadeaux, error } = await supabase
+        .from('cadeaux')
+        .select('id, nom_article, prix, est_reserve, reserve_par, participations');
+
+      const container = document.getElementById('participations');
+
+      if (error) {
+        container.innerHTML = `<p>Erreur de chargement : ${error.message}</p>`;
+        return;
+      }
+
+      if (!cadeaux.length) {
+        container.innerHTML = '<p>Aucun cadeau trouvé.</p>';
+        return;
+      }
+
+      const rows = cadeaux.map(item => {
+        const total = (item.participations || []).reduce((sum, p) => sum + (p.montant || 0), 0);
+        const participants = [
+          ...(item.participations || []).map(p => p.nom),
+          ...(item.est_reserve && item.reserve_par ? [`(Réservé par ${item.reserve_par})`] : [])
+        ].join(', ') || '-';
+        let statut = '';
+
+        if (item.est_reserve) {
+          statut = 'Réservé';
+        } else if (item.prix && total >= item.prix) {
+          statut = 'Entièrement offert';
+        } else if (total > 0) {
+          statut = 'Partiellement financé';
+        } else {
+          statut = 'Aucune participation';
+        }
+
+        return `
+          <tr>
+            <td>${item.nom_article}</td>
+            <td>${statut}</td>
+            <td>${total.toFixed(2)} €</td>
+            <td>${participants}</td>
+          </tr>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <table border="1" cellpadding="8">
+          <thead>
+            <tr>
+              <th>Cadeau</th>
+              <th>Statut</th>
+              <th>Total Participations</th>
+              <th>Participants</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    loadParticipations();
+  </script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Liste de Naissance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fffdf5;
+      --card: #ffffff;
+      --primary: #3d0066ff;           /* indigo */
+      --primary-hover: #c670ffff;     /* heliotrope */
+      --accent: #ffce1fff;            /* jonquil */
+      --text: #111111;
+      --border: #ffe9c9;
+      --shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      font-size: 16px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .intro {
+      max-width: 700px;
+      margin: 0 auto 30px;
+      text-align: center;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      background-color: #eec7fcff;
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #ffffff, #fff3e0);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.2s;
+      min-height: 480px;
+      justify-content: space-between;
+    }
+
+    .card-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+    }
+
+    .card img {
+      max-width: 100%;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .boutons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .card h3 {
+      margin: 10px 0 6px;
+      font-size: 1.2rem;
+    }
+
+    .card p {
+      margin: 4px 0;
+      font-size: 0.95rem;
+    }
+
+    .status {
+      margin: 8px 0;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .card button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 100px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      margin-top: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .footer {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #ffe047ff;
+      border-radius: var(--radius);
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    .footer button {
+      margin-left: 8px;
+      font-size: 0.9rem;
+      padding: 6px 10px;
+    }
+  </style>
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js';
+
+    const supabase = createClient(
+      'https://tfkenechaojxmxhzpqvq.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRma2VuZWNoYW9qeG14aHpwcXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5Njg1MTQsImV4cCI6MjA2OTU0NDUxNH0.1voFTEB2YHIt-oDdCWzkRntRI7egiUoYQ2UB9SrogZ0'
+    );
+
+    const container = document.getElementById('gift-list');
+
+    async function loadGifts() {
+      const { data, error } = await supabase
+        .from('cadeaux')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        container.innerHTML = `<p>Erreur de chargement: ${error.message}</p>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const participations = item.participations || [];
+        const total = participations.reduce((acc, p) => acc + (p.montant || 0), 0);
+        const prix = item.prix || 0;
+        let status = '';
+
+        if (item.est_reserve) {
+          status = `🏰 Ce cadeau a déjà été offert`;
+        } else if (prix && total >= prix) {
+          status = `🎉 Ce cadeau est entièrement offert !`;
+        } else if (participations.length) {
+          status = `🤝 Une partie du cadeau est déjà payée`;
+        }
+
+        card.innerHTML = `
+          <div class="card-content">
+            ${item.photo_url ? `<img src="${item.photo_url}" alt="${item.nom_article}" />` : ''}
+            <h3>${item.nom_article}</h3>
+            <p>${item.description || ''}</p>
+            ${prix ? `<p><strong>Prix :</strong> ${prix.toFixed(2)} €</p>` : ''}
+            <p class="status">${status}</p>
+          </div>
+          ${!item.est_reserve && total < prix ? `
+            <div class="boutons">
+              <button onclick="openModal('reserve', '${item.id}')">Offrir en entier</button>
+              <button onclick="openModal('participate', '${item.id}')">Participer au cadeau</button>
+            </div>
+          ` : ''}
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    loadGifts();
+  </script>
+</head>
+<body>
+  <h1>🏰 Liste de Naissance</h1>
+  <div class="intro">
+    <p><strong>✨ Bienvenue sur notre petite liste de naissance maison ✨</strong></p>
+    <p>Une liste de naissance est l'occasion pour des proches d'offrir des cadeaux utiles tout en évitant les doublons.</p>
+    <p>Nous avons créé cette page pour éviter les commissions des grandes plateformes (et parce que ca amuse Will ☺️).</p>
+    <p>Presque tout est prêt pour l'arrivée de notre petite fille, mais chaque petit geste est précieux. À vous de jouer si vous le désirez— offrez un cadeau en entier ou participez anonymement. </p>
+    <p>Le site ne contenant pas de module de paiement, les moyens de contribution sont affichés en bas.</p>
+    <p><em>Cécile et William</em></p>
+  </div>
+
+<div id="gift-list" class="grid">
+    <!-- JS will inject gift cards here -->
+  </div>
+
+  <dialog id="modal">
+    <form method="dialog" id="modalForm">
+      <h3 id="modalTitle"></h3>
+      <label>Votre prénom :</label><br />
+      <input type="text" id="nameInput" required><br /><br />
+      <div id="amountBlock" style="display: none;">
+        <label>Montant (€) :</label><br />
+        <input type="number" id="amountInput" min="1"><br /><br />
+      </div>
+      <input type="hidden" id="giftIdInput">
+      <button type="submit">Envoyer</button>
+      <button type="button" onclick="modal.close()">Annuler</button>
+    </form>
+  </dialog>
+
+  <div class="footer">
+    <h3>Moyens pour contribuer</h3>
+    <p><strong>Wero:</strong> 0672243784 <button onclick="copyText('0672243784')">Copier</button></p>
+    <p><strong>PayPal:</strong> georges-william@outlook.com <button onclick="copyText('georges-william@outlook.com')">Copier</button></p>
+    <p><strong>Virement:</strong> FR7614607005977001962832323 <button onclick="copyText('FR7614607005977001962832323')">Copier</button></p>
+    <p style="font-size: 0.9rem;">Merci infiniment 🙏</p>
+  </div>
+
+</body>
+<script>
+  function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => alert("Copié !"));
+  }
+</script>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js';
+
+const supabase = createClient(
+  'https://tfkenechaojxmxhzpqvq.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRma2VuZWNoYW9qeG14aHpwcXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5Njg1MTQsImV4cCI6MjA2OTU0NDUxNH0.1voFTEB2YHIt-oDdCWzkRntRI7egiUoYQ2UB9SrogZ0'
+);
+
+const container = document.getElementById('gift-list');
+
+async function loadGifts() {
+  const { data, error } = await supabase
+    .from('cadeaux')
+    .select('*')
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    container.innerHTML = `<p>Erreur de chargement: ${error.message}</p>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  data.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const participations = item.participations || [];
+    const total = participations.reduce((acc, p) => acc + (p.montant || 0), 0);
+    const prix = item.prix || 0;
+    let status = '';
+
+    if (item.est_reserve) {
+      status = `🏰 Ce cadeau a déjà été offert`;
+    } else if (prix && total >= prix) {
+      status = `🎉 Ce cadeau est entièrement offert !`;
+    } else if (participations.length) {
+      status = `🤝 Une partie du cadeau est déjà payée`;
+    }
+
+    card.innerHTML = `
+      ${item.photo_url ? `<img src="${item.photo_url}" alt="${item.nom_article}" />` : ''}
+      <h3>${item.nom_article}</h3>
+      <p>${item.description || ''}</p>
+      ${prix ? `<p><strong>Prix :</strong> ${prix.toFixed(2)} €</p>` : ''}
+      <p class="status">${status}</p>
+      ${!item.est_reserve && total < prix ? `
+        <div class="boutons">
+          <button onclick="openModal('reserve', '${item.id}')">Offrir en entier</button>
+          <button onclick="openModal('participate', '${item.id}')">Participer au cadeau</button>
+        </div>
+      ` : ''}
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+loadGifts();
+
+// Modal logic
+const modal = document.getElementById('modal');
+const form = document.getElementById('modalForm');
+const nameInput = document.getElementById('nameInput');
+const amountInput = document.getElementById('amountInput');
+const amountBlock = document.getElementById('amountBlock');
+const modalTitle = document.getElementById('modalTitle');
+const giftIdInput = document.getElementById('giftIdInput');
+let currentAction = null;
+
+window.openModal = function (action, giftId) {
+  currentAction = action;
+  giftIdInput.value = giftId;
+  nameInput.value = '';
+  amountInput.value = '';
+  modalTitle.textContent = action === 'reserve' ? 'Offrir ce cadeau en entier' : 'Participer au cadeau';
+  amountBlock.style.display = action === 'participate' ? 'block' : 'none';
+  modal.showModal();
+};
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = nameInput.value.trim();
+  const id = giftIdInput.value;
+  if (!name) return;
+
+  if (currentAction === 'reserve') {
+    const { error } = await supabase
+      .from('cadeaux')
+      .update({ est_reserve: true, reserve_par: name })
+      .eq('id', id);
+    if (error) {
+      alert('Erreur : ' + error.message);
+    } else {
+      alert('Merci pour votre générosité 💛');
+      modal.close();
+      loadGifts();
+    }
+  } else if (currentAction === 'participate') {
+    const amount = parseFloat(amountInput.value);
+    if (!amount || amount <= 0) return;
+    const { error } = await supabase
+      .rpc('ajouter_participation', {
+        cadeau_id: id,
+        participant_nom: name,
+        participant_montant: amount
+      });
+    if (error) {
+      alert('Erreur : ' + error.message);
+    } else {
+      alert('Merci pour votre participation 💛');
+      modal.close();
+      loadGifts();
+    }
+  }
+});
+</script>
+</body>
+</html>
